@@ -1,0 +1,6 @@
+{
+  "name": "ResumeCraft",
+  "description": "Professional resume builder with 5 recruiter-tested templates, live A4 preview, ATS readiness checklist, smart writing assistant, and instant high-resolution PDF export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
