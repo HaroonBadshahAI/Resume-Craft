@@ -1,4 +1,16 @@
-export type TemplateId = 'modern' | 'classic' | 'minimal' | 'creative' | 'executive';
+export type TemplateId =
+  | 'modern'
+  | 'classic'
+  | 'minimal'
+  | 'creative'
+  | 'executive'
+  | 'harvard'
+  | 'tech'
+  | 'swiss'
+  | 'nordic'
+  | 'metro';
+
+export type TemplateCategory = 'professional' | 'modern' | 'creative';
 
 export type AccentColorHex = '#4F46E5' | '#059669' | '#334155' | '#9F1239';
 
@@ -134,6 +146,7 @@ export interface ResumeData {
 export interface TemplateMetadata {
   id: TemplateId;
   name: string;
+  category: TemplateCategory;
   tagline: string;
   description: string;
   supportsPhotoByDefault: boolean;
@@ -145,6 +158,7 @@ export const TEMPLATE_DEFINITIONS: TemplateMetadata[] = [
   {
     id: 'modern',
     name: 'Modern Professional',
+    category: 'modern',
     tagline: 'Dark sidebar & structured hierarchy',
     description:
       'Features an accent-toned left sidebar for contact details, portrait, skills, and languages paired with a crisp main column for experience and education.',
@@ -155,6 +169,7 @@ export const TEMPLATE_DEFINITIONS: TemplateMetadata[] = [
   {
     id: 'classic',
     name: 'Classic Corporate',
+    category: 'professional',
     tagline: 'Timeless serif headings & formal rules',
     description:
       'Traditional single-column layout with centered contact header, refined serif section headings, and horizontal dividers favored by corporate recruiters.',
@@ -163,8 +178,20 @@ export const TEMPLATE_DEFINITIONS: TemplateMetadata[] = [
     badge: 'Recruiter Favorite',
   },
   {
+    id: 'harvard',
+    name: 'Harvard Ivy',
+    category: 'professional',
+    tagline: 'Wall Street & consulting single-column standard',
+    description:
+      'Modeled on the Ivy League & management consulting standard with formal serif typography, full-width horizontal rules, and right-aligned dates.',
+    supportsPhotoByDefault: false,
+    recommendedShape: 'square',
+    badge: 'Finance & Consulting',
+  },
+  {
     id: 'minimal',
     name: 'Minimal ATS',
+    category: 'professional',
     tagline: 'Ultra-clean parser-optimized layout',
     description:
       'Distraction-free single-column architecture with high-contrast sans-serif typography, clear date alignments, and maximum reading clarity.',
@@ -173,8 +200,42 @@ export const TEMPLATE_DEFINITIONS: TemplateMetadata[] = [
     badge: 'ATS Optimized',
   },
   {
+    id: 'executive',
+    name: 'Executive',
+    category: 'professional',
+    tagline: 'Premium dark navy & warm gold accents',
+    description:
+      'Boardroom-grade layout with a commanding dark header, refined rule dividers, structured competency blocks, and executive typography.',
+    supportsPhotoByDefault: true,
+    recommendedShape: 'square',
+    badge: 'Leadership',
+  },
+  {
+    id: 'tech',
+    name: 'Tech Minimal (LaTeX)',
+    category: 'modern',
+    tagline: 'Awesome-CV inspired monospace & stack matrix',
+    description:
+      'Engineered for software developers, data scientists, and technical PMs with numbered monospace headers and a prominent technical stack bar.',
+    supportsPhotoByDefault: false,
+    recommendedShape: 'rounded',
+    badge: 'Engineering & Data',
+  },
+  {
+    id: 'nordic',
+    name: 'Nordic Split',
+    category: 'modern',
+    tagline: 'Scandinavian humanist layout & right sidebar',
+    description:
+      'Airy left main column with timeline dots paired with a soft accent-tinted right sidebar housing contact details, skills, and visual language bars.',
+    supportsPhotoByDefault: true,
+    recommendedShape: 'circle',
+    badge: 'Modern Humanist',
+  },
+  {
     id: 'creative',
     name: 'Creative Studio',
+    category: 'creative',
     tagline: 'Bold header banner & modern two-column grid',
     description:
       'Designed for marketers, designers, and product builders with a vibrant header block, integrated portrait, and asymmetric two-column body.',
@@ -183,13 +244,25 @@ export const TEMPLATE_DEFINITIONS: TemplateMetadata[] = [
     badge: 'Design & Marketing',
   },
   {
-    id: 'executive',
-    name: 'Executive',
-    tagline: 'Premium dark navy & warm gold accents',
+    id: 'swiss',
+    name: 'Swiss Editorial Grid',
+    category: 'creative',
+    tagline: 'International Typographic Style 12-col grid',
     description:
-      'Boardroom-grade layout with a commanding dark header, refined rule dividers, structured competency blocks, and executive typography.',
+      'Architectural exposed hairline rules with a 3-column numbered section index on the left and 9-column editorial content blocks on the right.',
     supportsPhotoByDefault: true,
     recommendedShape: 'square',
-    badge: 'Leadership',
+    badge: 'Editorial & Product',
+  },
+  {
+    id: 'metro',
+    name: 'Metro Creative',
+    category: 'creative',
+    tagline: 'Two-tone geometric header & timeline cards',
+    description:
+      'Agency-ready layout featuring a split dark-and-accent geometric header banner, accent-bordered experience cards, and bold skill badges.',
+    supportsPhotoByDefault: true,
+    recommendedShape: 'rounded',
+    badge: 'Agency & Creative',
   },
 ];

@@ -86,7 +86,7 @@ export default function App() {
   return (
     <div
       data-testid="app-shell"
-      className="relative flex-1 h-dvh max-h-dvh w-full overflow-hidden flex flex-col bg-[#F8FAFC] text-[#0F172A]"
+      className="flex flex-col h-dvh overflow-hidden w-full relative bg-[#F8FAFC] text-[#0F172A]"
     >
       {/* TOP NAVIGATION BAR */}
       <header className="sticky top-0 z-30 h-15 px-4 lg:px-6 bg-white border-b border-slate-200 flex items-center justify-between gap-4 shrink-0">
@@ -118,6 +118,7 @@ export default function App() {
           {/* Templates Button */}
           <button
             type="button"
+            data-testid="open-templates-btn"
             onClick={() => setIsGalleryOpen(true)}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/75 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
@@ -306,12 +307,12 @@ export default function App() {
       </div>
 
       {/* MAIN WORKSPACE: LEFT 42% EDITOR | RIGHT 58% LIVE A4 PREVIEW */}
-      <main className="relative flex-1 min-h-0 w-full flex overflow-hidden">
+      <main className="relative flex-1 min-h-0 w-full flex flex-col lg:flex-row overflow-hidden">
         {/* LEFT PANEL — RESUME EDITOR */}
         <section
           aria-label="Resume Editor"
           data-testid="editor-layout-section"
-          className={`relative w-full lg:w-[42%] xl:w-[40%] lg:shrink-0 flex-1 lg:flex-initial min-h-0 border-r border-slate-200 overflow-hidden ${
+          className={`relative w-full lg:w-[42%] xl:w-[40%] lg:shrink-0 min-h-0 flex-1 lg:flex-none lg:h-full overflow-y-auto border-r border-slate-200 ${
             mobileTab === 'editor' ? 'flex flex-col' : 'hidden lg:flex lg:flex-col'
           }`}
         >
@@ -322,7 +323,7 @@ export default function App() {
         <section
           aria-label="Resume Preview"
           data-testid="preview-layout-section"
-          className={`relative flex-1 min-w-0 min-h-0 overflow-hidden ${
+          className={`relative flex-1 min-w-0 min-h-0 lg:h-full overflow-y-auto ${
             mobileTab === 'preview' ? 'flex flex-col' : 'hidden lg:flex lg:flex-col'
           }`}
         >

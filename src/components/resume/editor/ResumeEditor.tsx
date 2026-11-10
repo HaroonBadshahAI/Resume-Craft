@@ -37,7 +37,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ onOpenImport }) => {
   return (
     <div
       data-testid="resume-editor-panel"
-      className="relative flex-1 min-h-0 flex flex-col bg-[#F8FAFC] overflow-hidden"
+      className="relative min-h-0 flex-1 flex flex-col bg-[#F8FAFC] overflow-hidden"
     >
       {/* Sticky Section Navigation Bar */}
       <div className="sticky top-0 z-10 px-4 py-2.5 bg-white border-b border-slate-200 shrink-0">
@@ -71,7 +71,7 @@ export const ResumeEditor: React.FC<ResumeEditorProps> = ({ onOpenImport }) => {
       {/* Scrollable Editor Cards */}
       <div
         data-testid="resume-editor-scroll-container"
-        className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain p-5 space-y-6"
+        className="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-5 space-y-6"
       >
         {/* Onboarding Import Existing Resume Card */}
         {onOpenImport && (

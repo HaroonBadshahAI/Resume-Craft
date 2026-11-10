@@ -66,7 +66,7 @@ export const ResumePreview: React.FC = () => {
   return (
     <div
       data-testid="resume-preview-panel"
-      className="relative flex-1 min-h-0 flex flex-col bg-[#F1F5F9] overflow-hidden"
+      className="relative min-h-0 flex-1 flex flex-col bg-[#F1F5F9] overflow-hidden"
     >
       {/* Top Bar Inside Preview Panel: ATS Score + Quick Template & Zoom Controls */}
       <div className="sticky top-0 z-10 p-4 pb-3 space-y-3 border-b border-slate-200/80 bg-[#F8FAFC] shrink-0">
@@ -147,7 +147,7 @@ export const ResumePreview: React.FC = () => {
       <div
         ref={viewportRef}
         data-testid="resume-preview-scroll-container"
-        className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain p-6 flex justify-center items-start"
+        className="relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain p-6 flex justify-center items-start"
       >
         <div
           style={{

@@ -6,6 +6,11 @@ import { ClassicTemplate } from './templates/ClassicTemplate';
 import { MinimalTemplate } from './templates/MinimalTemplate';
 import { CreativeTemplate } from './templates/CreativeTemplate';
 import { ExecutiveTemplate } from './templates/ExecutiveTemplate';
+import { HarvardTemplate } from './templates/HarvardTemplate';
+import { TechTemplate } from './templates/TechTemplate';
+import { SwissTemplate } from './templates/SwissTemplate';
+import { NordicTemplate } from './templates/NordicTemplate';
+import { MetroTemplate } from './templates/MetroTemplate';
 
 interface ResumeDocumentProps {
   data: ResumeData;
@@ -31,6 +36,16 @@ export const ResumeDocument = forwardRef<HTMLDivElement, ResumeDocumentProps>(
           return <CreativeTemplate data={data} />;
         case 'executive':
           return <ExecutiveTemplate data={data} />;
+        case 'harvard':
+          return <HarvardTemplate data={data} />;
+        case 'tech':
+          return <TechTemplate data={data} />;
+        case 'swiss':
+          return <SwissTemplate data={data} />;
+        case 'nordic':
+          return <NordicTemplate data={data} />;
+        case 'metro':
+          return <MetroTemplate data={data} />;
         default:
           return <ModernTemplate data={data} />;
       }

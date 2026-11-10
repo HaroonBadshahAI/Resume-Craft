@@ -12,7 +12,11 @@ import {
   AccentColorHex,
   TEMPLATE_DEFINITIONS,
 } from './types';
-import { SAMPLE_RESUME_DATA, createBlankResume } from './sample-data';
+import {
+  SAMPLE_RESUME_DATA,
+  createBlankResume,
+  READY_TO_USE_STARTER_RESUMES,
+} from './sample-data';
 import { loadResumeFromStorage, saveResumeToStorage } from './storage';
 import {
   generateProfessionalSummary,
@@ -46,6 +50,7 @@ interface ResumeStoreState {
   addToast: (toast: Omit<ToastMessage, 'id'>) => void;
   dismissToast: (id: string) => void;
   loadSampleResume: () => void;
+  loadStarterPreset: (presetId: string) => void;
   resetToBlankResume: () => void;
   importResumeData: (
     imported: ResumeData,
@@ -160,6 +165,23 @@ export const useResumeStore = create<ResumeStoreState>((set, get) => {
       });
     },
 
+    loadStarterPreset: (presetId) => {
+      const preset = READY_TO_USE_STARTER_RESUMES.find((p) => p.id === presetId);
+      if (!preset) return;
+      const currentPhoto = get().resume.personal.photo;
+      const nextResume = structuredClone(preset.data);
+      if (currentPhoto && !nextResume.personal.photo) {
+        nextResume.personal.photo = currentPhoto;
+      }
+      saveResumeToStorage(nextResume);
+      set({ resume: nextResume, storageWarning: null });
+      get().addToast({
+        type: 'success',
+        title: `Loaded ${preset.roleTitle}`,
+        description: `Applied ready-to-use resume content with the ${preset.recommendedTemplateName} template.`,
+      });
+    },
+
     resetToBlankResume: () => {
       const { selectedTemplate, accentColor } = get().resume;
       const blank = createBlankResume(selectedTemplate, accentColor);
@@ -205,9 +227,8 @@ export const useResumeStore = create<ResumeStoreState>((set, get) => {
         selectedTemplate: template,
         photoSettings: {
           ...prev.photoSettings,
-          // When switching to minimal ATS, default photo visibility to false unless user explicitly toggles it later;
-          // When switching to other templates, if user has a photo or template supports it, preserve visibility
-          visible: template === 'minimal' ? false : prev.photoSettings.visible,
+          visible:
+            template === 'minimal' ? false : prev.photoSettings.visible,
           shape: meta ? meta.recommendedShape : prev.photoSettings.shape,
         },
       }));

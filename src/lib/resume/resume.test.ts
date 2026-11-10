@@ -5,7 +5,9 @@ import {
   formatMonthYear,
   formatDateRange,
   SAMPLE_RESUME_DATA,
+  READY_TO_USE_STARTER_RESUMES,
 } from './sample-data';
+import { TEMPLATE_DEFINITIONS } from './types';
 import {
   improveAchievementBullet,
   generateProfessionalSummary,
@@ -338,4 +340,29 @@ test('Resume Merger preserves existing non-empty fields on merge and avoids dupl
   const replaced = applyReplaceResume(current, imported);
   assert.equal(replaced.personal.fullName, 'Imported Candidate Name');
   assert.equal(replaced.selectedTemplate, 'executive');
+});
+
+test('All 10 professional, modern, and creative templates and 5 ready-to-use starters normalize and score 100% ATS readiness', () => {
+  assert.equal(TEMPLATE_DEFINITIONS.length, 10);
+  const categories = new Set(TEMPLATE_DEFINITIONS.map((t) => t.category));
+  assert.deepEqual(
+    Array.from(categories).sort(),
+    ['creative', 'modern', 'professional']
+  );
+
+  for (const tpl of TEMPLATE_DEFINITIONS) {
+    const normalized = normalizeResumeData({
+      ...SAMPLE_RESUME_DATA,
+      selectedTemplate: tpl.id,
+    });
+    assert.equal(normalized.selectedTemplate, tpl.id);
+  }
+
+  assert.equal(READY_TO_USE_STARTER_RESUMES.length, 5);
+  for (const preset of READY_TO_USE_STARTER_RESUMES) {
+    const normalized = normalizeResumeData(preset.data);
+    assert.equal(normalized.selectedTemplate, preset.data.selectedTemplate);
+    const ats = calculateATSScore(normalized);
+    assert.equal(ats.totalScore, 100);
+  }
 });
