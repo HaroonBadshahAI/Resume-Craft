@@ -19,6 +19,13 @@ import {
   improveAllBullets,
   improveAchievementBullet,
 } from './writing-assistant';
+import {
+  applyMergeResume,
+  applyReplaceResume,
+  ImportMode,
+  MergeOptions,
+} from './import/resume-merger';
+import { isEndBeforeStart } from './import/date-normalizer';
 
 export interface ToastMessage {
   id: string;
@@ -32,6 +39,7 @@ interface ResumeStoreState {
   hydrated: boolean;
   storageWarning: string | null;
   toasts: ToastMessage[];
+  recentlyImportedHighlight: boolean;
 
   // Lifecycle & Global actions
   hydrate: () => void;
@@ -39,6 +47,11 @@ interface ResumeStoreState {
   dismissToast: (id: string) => void;
   loadSampleResume: () => void;
   resetToBlankResume: () => void;
+  importResumeData: (
+    imported: ResumeData,
+    mode: ImportMode,
+    options?: MergeOptions
+  ) => void;
   setTemplate: (template: TemplateId) => void;
   setAccentColor: (color: AccentColorHex) => void;
 
@@ -106,6 +119,7 @@ export const useResumeStore = create<ResumeStoreState>((set, get) => {
     hydrated: false,
     storageWarning: null,
     toasts: [],
+    recentlyImportedHighlight: false,
 
     hydrate: () => {
       if (get().hydrated) return;
@@ -155,6 +169,32 @@ export const useResumeStore = create<ResumeStoreState>((set, get) => {
         type: 'info',
         title: 'Started New Resume',
         description: 'All fields have been cleared for a fresh start.',
+      });
+    },
+
+    importResumeData: (imported, mode, options) => {
+      const current = get().resume;
+      const nextResume =
+        mode === 'merge'
+          ? applyMergeResume(current, imported, options)
+          : applyReplaceResume(current, imported);
+
+      const saveResult = saveResumeToStorage(nextResume);
+      set({
+        resume: nextResume,
+        storageWarning: saveResult.ok ? null : saveResult.error || null,
+        recentlyImportedHighlight: true,
+      });
+
+      setTimeout(() => {
+        set({ recentlyImportedHighlight: false });
+      }, 2800);
+
+      get().addToast({
+        type: 'success',
+        title: 'Resume Imported Successfully',
+        description:
+          'Resume imported successfully. Review your information and choose a template.',
       });
     },
 
@@ -270,7 +310,7 @@ export const useResumeStore = create<ResumeStoreState>((set, get) => {
           } else if (
             updated.startDate &&
             updated.endDate &&
-            updated.endDate < updated.startDate
+            isEndBeforeStart(updated.startDate, updated.endDate)
           ) {
             // Prevent end dates earlier than start dates
             updated.endDate = updated.startDate;

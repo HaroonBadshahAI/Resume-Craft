@@ -1,6 +1,7 @@
 import React from 'react';
 import { useResumeStore } from '../../../lib/resume/store';
 import { formatMonthYear } from '../../../lib/resume/sample-data';
+import { ResumeDateInput } from './ResumeDateInput';
 import { Plus, Trash2, FolderKanban, Award } from 'lucide-react';
 
 export const ProjectsAndCertificationsSection: React.FC = () => {
@@ -257,14 +258,12 @@ export const ProjectsAndCertificationsSection: React.FC = () => {
                       >
                         Issue Date
                       </label>
-                      <input
+                      <ResumeDateInput
                         id={`cert-date-${cert.id}`}
-                        type="month"
                         value={cert.issueDate}
-                        onChange={(e) =>
-                          updateCertification(cert.id, { issueDate: e.target.value })
+                        onChange={(val) =>
+                          updateCertification(cert.id, { issueDate: val })
                         }
-                        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 tabular-nums"
                       />
                     </div>
                   </div>

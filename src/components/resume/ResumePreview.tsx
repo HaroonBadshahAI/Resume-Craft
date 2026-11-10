@@ -6,11 +6,7 @@ import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../lib/resume/pdf-export';
 import { TEMPLATE_DEFINITIONS, TemplateId } from '../../lib/resume/types';
 import { ZoomIn, ZoomOut, RotateCcw, FileText } from 'lucide-react';
 
-interface ResumePreviewProps {
-  exportRef: React.RefObject<HTMLDivElement | null>;
-}
-
-export const ResumePreview: React.FC<ResumePreviewProps> = ({ exportRef }) => {
+export const ResumePreview: React.FC = () => {
   const resume = useResumeStore((s) => s.resume);
   const setTemplate = useResumeStore((s) => s.setTemplate);
 
@@ -68,9 +64,12 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ exportRef }) => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#F1F5F9] overflow-hidden">
+    <div
+      data-testid="resume-preview-panel"
+      className="relative flex-1 min-h-0 flex flex-col bg-[#F1F5F9] overflow-hidden"
+    >
       {/* Top Bar Inside Preview Panel: ATS Score + Quick Template & Zoom Controls */}
-      <div className="p-4 pb-3 space-y-3 border-b border-slate-200/80 bg-[#F8FAFC] shrink-0">
+      <div className="sticky top-0 z-10 p-4 pb-3 space-y-3 border-b border-slate-200/80 bg-[#F8FAFC] shrink-0">
         <ATSScore />
 
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -147,23 +146,26 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ exportRef }) => {
       {/* Scrollable A4 Document Stage */}
       <div
         ref={viewportRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden p-6 flex justify-center items-start"
+        data-testid="resume-preview-scroll-container"
+        className="relative flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain p-6 flex justify-center items-start"
       >
         <div
           style={{
             width: `${Math.round(A4_WIDTH_PX * scale)}px`,
             height: `${Math.round(docHeight * scale)}px`,
-            transition: 'width 150ms ease, height 150ms ease',
           }}
-          className="relative shrink-0"
+          className="relative shrink-0 overflow-hidden shadow-[0_12px_36px_-8px_rgba(15,23,42,0.18)] ring-1 ring-slate-900/5 bg-white"
         >
           <div
             style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
               width: `${A4_WIDTH_PX}px`,
               transform: `scale(${scale})`,
               transformOrigin: 'top left',
             }}
-            className="shadow-[0_12px_36px_-8px_rgba(15,23,42,0.18)] ring-1 ring-slate-900/5 bg-white"
+            className="bg-white"
           >
             <ResumeDocument
               ref={liveDocRef}
@@ -172,26 +174,6 @@ export const ResumePreview: React.FC<ResumePreviewProps> = ({ exportRef }) => {
             />
           </div>
         </div>
-      </div>
-
-      {/*
-        DEDICATED OFF-SCREEN UNSCALED A4 EXPORT CONTAINER
-        Mounted in the DOM without display:none and without preview zoom transforms
-        so html2canvas-pro captures the exact 210mm x 297mm A4 document at full fidelity.
-      */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: 'fixed',
-          left: '-10000px',
-          top: '0px',
-          width: `${A4_WIDTH_PX}px`,
-          zIndex: -50,
-          pointerEvents: 'none',
-          opacity: 1,
-        }}
-      >
-        <ResumeDocument ref={exportRef} data={resume} showPageGuides={false} />
       </div>
     </div>
   );

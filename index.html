@@ -3,6 +3,50 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        function makeFetchWritable(win) {
+          if (!win) return;
+          try {
+            var currentFetch = win.fetch ? win.fetch.bind(win) : undefined;
+            Object.defineProperty(win, 'fetch', {
+              configurable: true,
+              enumerable: true,
+              get: function () {
+                return currentFetch;
+              },
+              set: function (nextFetch) {
+                if (typeof nextFetch === 'function') {
+                  currentFetch = nextFetch;
+                }
+              },
+            });
+          } catch (err) {}
+        }
+
+        makeFetchWritable(window);
+        if (typeof Window !== 'undefined' && Window.prototype) {
+          makeFetchWritable(Window.prototype);
+        }
+
+        window.addEventListener(
+          'error',
+          function (event) {
+            if (
+              event &&
+              ((typeof event.filename === 'string' &&
+                event.filename.indexOf('chrome-extension://') === 0) ||
+                (typeof event.message === 'string' &&
+                  event.message.indexOf('Cannot set property fetch') !== -1))
+            ) {
+              event.stopImmediatePropagation();
+              event.preventDefault();
+            }
+          },
+          true
+        );
+      })();
+    </script>
     <title>ResumeCraft — Professional Resume Builder</title>
     <meta name="description" content="Professional resume builder with 5 recruiter-tested templates, live A4 preview, ATS readiness checklist, smart writing assistant, and instant high-resolution PDF export." />
     <meta property="og:title" content="ResumeCraft — Professional Resume Builder" />

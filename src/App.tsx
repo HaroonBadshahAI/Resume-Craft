@@ -1,17 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useResumeStore } from './lib/resume/store';
 import { ACCENT_COLORS, TEMPLATE_DEFINITIONS } from './lib/resume/types';
-import { exportResumeToPdf } from './lib/resume/pdf-export';
 import { ResumeEditor } from './components/resume/editor/ResumeEditor';
 import { ResumePreview } from './components/resume/ResumePreview';
+import { ResumeDocument } from './components/resume/ResumeDocument';
 import { TemplateGallery } from './components/resume/TemplateGallery';
+import { ImportResumeDialog } from './components/resume/ImportResumeDialog';
 import { ConfirmDialog } from './components/resume/ConfirmDialog';
 import { ToastViewport } from './components/resume/ToastViewport';
+import { A4_WIDTH_PX, exportResumeToPdf } from './lib/resume/pdf-export';
 import {
   Download,
   LayoutTemplate,
   RotateCcw,
   FilePlus2,
+  FileUp,
   Loader2,
   PenLine,
   Eye,
@@ -30,6 +33,7 @@ export default function App() {
   const exportContainerRef = useRef<HTMLDivElement | null>(null);
 
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const [confirmMode, setConfirmMode] = useState<'sample' | 'new' | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [mobileTab, setMobileTab] = useState<'editor' | 'preview'>('editor');
@@ -80,9 +84,12 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex flex-col bg-[#F8FAFC] text-[#0F172A]">
+    <div
+      data-testid="app-shell"
+      className="relative flex-1 h-dvh max-h-dvh w-full overflow-hidden flex flex-col bg-[#F8FAFC] text-[#0F172A]"
+    >
       {/* TOP NAVIGATION BAR */}
-      <header className="h-15 px-4 lg:px-6 bg-white border-b border-slate-200 flex items-center justify-between gap-4 shrink-0 z-30">
+      <header className="sticky top-0 z-30 h-15 px-4 lg:px-6 bg-white border-b border-slate-200 flex items-center justify-between gap-4 shrink-0">
         {/* Zone 1: Brand Title */}
         <div className="flex items-center gap-3 shrink-0">
           <a
@@ -148,6 +155,17 @@ export default function App() {
             })}
           </div>
 
+          {/* Import Resume Button */}
+          <button
+            type="button"
+            onClick={() => setIsImportOpen(true)}
+            data-testid="toolbar-import-resume-button"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/80 rounded-lg transition-colors cursor-pointer whitespace-nowrap shrink-0"
+          >
+            <FileUp className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Import Resume</span>
+          </button>
+
           {/* Load Sample */}
           <button
             type="button"
@@ -204,7 +222,7 @@ export default function App() {
       )}
 
       {/* MOBILE CONTROLS & EDITOR / PREVIEW TAB SWITCHER (< lg) */}
-      <div className="lg:hidden bg-white border-b border-slate-200 px-3 py-2 space-y-2 shrink-0">
+      <div className="lg:hidden sticky top-15 z-20 bg-white border-b border-slate-200 px-3 py-2 space-y-2 shrink-0">
         <div className="md:hidden flex items-center justify-between gap-2 overflow-x-auto">
           <button
             type="button"
@@ -232,6 +250,15 @@ export default function App() {
               );
             })}
           </div>
+
+          <button
+            type="button"
+            onClick={() => setIsImportOpen(true)}
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg whitespace-nowrap shrink-0"
+          >
+            <FileUp className="w-3.5 h-3.5 text-indigo-600" />
+            <span>Import</span>
+          </button>
 
           <button
             type="button"
@@ -279,30 +306,67 @@ export default function App() {
       </div>
 
       {/* MAIN WORKSPACE: LEFT 42% EDITOR | RIGHT 58% LIVE A4 PREVIEW */}
-      <main className="flex-1 flex overflow-hidden">
+      <main className="relative flex-1 min-h-0 w-full flex overflow-hidden">
         {/* LEFT PANEL — RESUME EDITOR */}
-        <div
-          className={`w-full lg:w-[42%] xl:w-[40%] h-full border-r border-slate-200 shrink-0 ${
-            mobileTab === 'editor' ? 'block' : 'hidden lg:block'
+        <section
+          aria-label="Resume Editor"
+          data-testid="editor-layout-section"
+          className={`relative w-full lg:w-[42%] xl:w-[40%] lg:shrink-0 flex-1 lg:flex-initial min-h-0 border-r border-slate-200 overflow-hidden ${
+            mobileTab === 'editor' ? 'flex flex-col' : 'hidden lg:flex lg:flex-col'
           }`}
         >
-          <ResumeEditor />
-        </div>
+          <ResumeEditor onOpenImport={() => setIsImportOpen(true)} />
+        </section>
 
         {/* RIGHT PANEL — ATS READINESS & LIVE A4 PREVIEW */}
-        <div
-          className={`w-full lg:w-[58%] xl:w-[60%] h-full shrink-0 ${
-            mobileTab === 'preview' ? 'block' : 'hidden lg:block'
+        <section
+          aria-label="Resume Preview"
+          data-testid="preview-layout-section"
+          className={`relative flex-1 min-w-0 min-h-0 overflow-hidden ${
+            mobileTab === 'preview' ? 'flex flex-col' : 'hidden lg:flex lg:flex-col'
           }`}
         >
-          <ResumePreview exportRef={exportContainerRef} />
-        </div>
+          <ResumePreview />
+        </section>
       </main>
+
+      {/*
+        DEDICATED UNSCALED A4 EXPORT CONTAINER AT (0,0)
+        Clipped to height:0 / overflow:hidden in the live DOM so it never causes document scroll,
+        and temporarily expanded during export / in html2canvas-pro's onclone callback.
+      */}
+      <div
+        data-pdf-export-root="true"
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          top: '0px',
+          left: '0px',
+          width: `${A4_WIDTH_PX}px`,
+          height: '0px',
+          zIndex: -9999,
+          opacity: 0,
+          pointerEvents: 'none',
+          overflow: 'hidden',
+        }}
+      >
+        <ResumeDocument
+          ref={exportContainerRef}
+          data={resume}
+          showPageGuides={false}
+        />
+      </div>
 
       {/* TEMPLATE GALLERY MODAL */}
       <TemplateGallery
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
+      />
+
+      {/* IMPORT EXISTING RESUME DIALOG */}
+      <ImportResumeDialog
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
       />
 
       {/* CONFIRMATION DIALOG FOR LOAD SAMPLE */}

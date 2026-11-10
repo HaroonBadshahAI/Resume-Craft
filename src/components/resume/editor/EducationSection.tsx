@@ -1,6 +1,7 @@
 import React from 'react';
 import { useResumeStore } from '../../../lib/resume/store';
 import { formatDateRange } from '../../../lib/resume/sample-data';
+import { ResumeDateInput } from './ResumeDateInput';
 import { Plus, Trash2, GraduationCap } from 'lucide-react';
 
 export const EducationSection: React.FC = () => {
@@ -143,14 +144,12 @@ export const EducationSection: React.FC = () => {
                     >
                       Start Month / Year
                     </label>
-                    <input
+                    <ResumeDateInput
                       id={`edu-start-${edu.id}`}
-                      type="month"
                       value={edu.startDate}
-                      onChange={(e) =>
-                        updateEducation(edu.id, { startDate: e.target.value })
+                      onChange={(val) =>
+                        updateEducation(edu.id, { startDate: val })
                       }
-                      className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 tabular-nums"
                     />
                   </div>
 
@@ -161,15 +160,13 @@ export const EducationSection: React.FC = () => {
                     >
                       End Month / Year
                     </label>
-                    <input
+                    <ResumeDateInput
                       id={`edu-end-${edu.id}`}
-                      type="month"
                       min={edu.startDate || undefined}
                       value={edu.endDate}
-                      onChange={(e) =>
-                        updateEducation(edu.id, { endDate: e.target.value })
+                      onChange={(val) =>
+                        updateEducation(edu.id, { endDate: val })
                       }
-                      className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 tabular-nums"
                     />
                   </div>
 

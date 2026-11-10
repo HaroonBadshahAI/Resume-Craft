@@ -1,6 +1,7 @@
 import React from 'react';
 import { useResumeStore } from '../../../lib/resume/store';
 import { formatDateRange } from '../../../lib/resume/sample-data';
+import { ResumeDateInput } from './ResumeDateInput';
 import { Plus, Trash2, Wand2, Briefcase } from 'lucide-react';
 
 export const ExperienceSection: React.FC = () => {
@@ -157,14 +158,12 @@ export const ExperienceSection: React.FC = () => {
                     >
                       Start Month / Year
                     </label>
-                    <input
+                    <ResumeDateInput
                       id={`exp-start-${exp.id}`}
-                      type="month"
                       value={exp.startDate}
-                      onChange={(e) =>
-                        updateExperience(exp.id, { startDate: e.target.value })
+                      onChange={(val) =>
+                        updateExperience(exp.id, { startDate: val })
                       }
-                      className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 tabular-nums"
                     />
                   </div>
 
@@ -175,16 +174,14 @@ export const ExperienceSection: React.FC = () => {
                     >
                       End Month / Year
                     </label>
-                    <input
+                    <ResumeDateInput
                       id={`exp-end-${exp.id}`}
-                      type="month"
                       min={exp.startDate || undefined}
                       disabled={exp.isCurrent}
                       value={exp.isCurrent ? '' : exp.endDate}
-                      onChange={(e) =>
-                        updateExperience(exp.id, { endDate: e.target.value })
+                      onChange={(val) =>
+                        updateExperience(exp.id, { endDate: val })
                       }
-                      className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 disabled:bg-slate-100 disabled:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-600 tabular-nums"
                     />
                   </div>
                 </div>

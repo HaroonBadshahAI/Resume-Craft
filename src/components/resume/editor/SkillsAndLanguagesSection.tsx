@@ -227,7 +227,7 @@ export const SkillsAndLanguagesSection: React.FC = () => {
                 key={lang.id}
                 className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 p-3 rounded-xl border border-slate-200 bg-slate-50/40"
               >
-                <div className="flex-1">
+                <div className="relative flex-1">
                   <label htmlFor={`lang-name-${lang.id}`} className="sr-only">
                     Language Name {idx + 1}
                   </label>
@@ -243,7 +243,7 @@ export const SkillsAndLanguagesSection: React.FC = () => {
                   />
                 </div>
 
-                <div className="sm:w-44">
+                <div className="relative sm:w-44">
                   <label htmlFor={`lang-prof-${lang.id}`} className="sr-only">
                     Proficiency Level {idx + 1}
                   </label>

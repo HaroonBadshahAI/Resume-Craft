@@ -1,6 +1,6 @@
 /**
  * Dedicated reusable PDF export engine using html2canvas-pro and jsPDF.
- * Captures the actual rendered off-screen unscaled A4 ResumeDocument element
+ * Captures the actual rendered unscaled A4 ResumeDocument element
  * with deterministic A4 page break handling so blocks are not sliced mid-line.
  */
 
@@ -46,15 +46,20 @@ async function waitForImagesAndFonts(container: HTMLElement): Promise<void> {
     )
   );
 
-  // Allow one animation frame for layout paint stabilization
-  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  // Allow two animation frames for layout and font paint stabilization
+  await new Promise<void>((resolve) =>
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+  );
 }
 
 /**
  * Computes safe vertical split offsets (in CSS px relative to container top)
  * so multipage resumes break cleanly between [data-pdf-block] elements instead of slicing text.
  */
-function computePageSlices(container: HTMLElement, totalHeightPx: number): Array<{ topPx: number; heightPx: number }> {
+function computePageSlices(
+  container: HTMLElement,
+  totalHeightPx: number
+): Array<{ topPx: number; heightPx: number }> {
   const pageHeight = A4_HEIGHT_PX;
   if (totalHeightPx <= pageHeight + 8) {
     return [{ topPx: 0, heightPx: Math.max(totalHeightPx, pageHeight) }];
@@ -120,22 +125,79 @@ export async function exportResumeToPdf(
   ]);
 
   const naturalWidth = A4_WIDTH_PX;
-  const measuredHeight = Math.max(exportElement.scrollHeight, exportElement.offsetHeight, A4_HEIGHT_PX);
-  const scale = 2; // Crisp 2x retina capture
+  const liveExportRoot = exportElement.closest<HTMLElement>('[data-pdf-export-root="true"]');
+  if (liveExportRoot) {
+    liveExportRoot.style.height = 'auto';
+    liveExportRoot.style.overflow = 'visible';
+  }
 
-  const fullCanvas = await html2canvas(exportElement, {
-    scale,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: '#FFFFFF',
-    width: naturalWidth,
-    height: measuredHeight,
-    windowWidth: naturalWidth,
-    windowHeight: measuredHeight,
-    logging: false,
-  });
+  let measuredHeight = A4_HEIGHT_PX;
+  let slices: Array<{ topPx: number; heightPx: number }> = [];
+  let fullCanvas: HTMLCanvasElement;
 
-  const slices = computePageSlices(exportElement, measuredHeight);
+  try {
+    measuredHeight = Math.max(
+      exportElement.scrollHeight,
+      exportElement.offsetHeight,
+      A4_HEIGHT_PX
+    );
+    const scale = 2; // Crisp 2x retina capture
+
+    slices = computePageSlices(exportElement, measuredHeight);
+
+    fullCanvas = await html2canvas(exportElement, {
+      scale,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#FFFFFF',
+      x: 0,
+      y: 0,
+      scrollX: 0,
+      scrollY: 0,
+      width: naturalWidth,
+      height: measuredHeight,
+      windowWidth: naturalWidth,
+      windowHeight: measuredHeight,
+      logging: false,
+      onclone: (clonedDoc, clonedEl) => {
+        clonedDoc.documentElement.style.overflow = 'visible';
+        clonedDoc.documentElement.style.height = 'auto';
+        clonedDoc.body.style.overflow = 'visible';
+        clonedDoc.body.style.height = 'auto';
+        clonedDoc.body.style.margin = '0';
+        clonedDoc.body.style.padding = '0';
+
+        const exportRoot = clonedDoc.querySelector<HTMLElement>(
+          '[data-pdf-export-root="true"]'
+        );
+        if (exportRoot) {
+          exportRoot.style.position = 'absolute';
+          exportRoot.style.top = '0px';
+          exportRoot.style.left = '0px';
+          exportRoot.style.width = `${naturalWidth}px`;
+          exportRoot.style.height = 'auto';
+          exportRoot.style.zIndex = '2147483647';
+          exportRoot.style.opacity = '1';
+          exportRoot.style.visibility = 'visible';
+          exportRoot.style.pointerEvents = 'auto';
+          exportRoot.style.overflow = 'visible';
+        }
+
+        clonedEl.style.opacity = '1';
+        clonedEl.style.visibility = 'visible';
+        clonedEl.style.transform = 'none';
+        clonedEl.style.overflow = 'visible';
+      },
+    });
+  } finally {
+    if (liveExportRoot) {
+      liveExportRoot.style.height = '0px';
+      liveExportRoot.style.overflow = 'hidden';
+    }
+  }
+
+  const scale = 2;
+
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -147,7 +209,8 @@ export async function exportResumeToPdf(
   const fullCtx = fullCanvas.getContext('2d');
   let leftEdgeColor = '#FFFFFF';
   if (fullCtx) {
-    const pixel = fullCtx.getImageData(16 * scale, (measuredHeight - 10) * scale, 1, 1).data;
+    const sampleY = Math.min(fullCanvas.height - 1, Math.max(0, (measuredHeight - 20) * scale));
+    const pixel = fullCtx.getImageData(16 * scale, sampleY, 1, 1).data;
     if (pixel[3] > 0) {
       leftEdgeColor = `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
     }
